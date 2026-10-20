@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Farzona uchun — kichik his-tuyg‘ular dunyosi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== Ranglar va shriftlar ===== */
+:root{
+  --bg:#FFF9FC; --soft:#F8DDE8; --rose:#E9A4BE; --deep:#B84D78; --ink:#49333F; --white:#FFFFFF;
+  --serif:"Cormorant Garamond","Playfair Display",Georgia,serif;
+  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.22,.8,.24,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);color:var(--ink);background:var(--bg);overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--deep);outline-offset:3px;border-radius:12px}
+
+/* ===== Fon ===== */
+#bg{position:fixed;inset:0;z-index:0;background:
+  radial-gradient(60vmax 60vmax at 15% 10%,var(--soft) 0%,transparent 60%),
+  radial-gradient(50vmax 50vmax at 90% 90%,#f6d3e1 0%,transparent 60%),var(--bg)}
+#bg::before,#bg::after{content:"";position:absolute;width:46vmax;height:46vmax;border-radius:50%;
+  background:radial-gradient(circle,rgba(233,164,190,.38),transparent 65%);filter:blur(30px);animation:drift 22s ease-in-out infinite alternate}
+#bg::before{top:-12vmax;left:-8vmax}
+#bg::after{bottom:-16vmax;right:-10vmax;animation-delay:-9s}
+@keyframes drift{to{transform:translate(8vmax,6vmax) scale(1.15)}}
+#fx{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.petal{position:absolute;top:-40px;width:14px;height:18px;border-radius:80% 0 80% 0;
+  background:linear-gradient(135deg,var(--rose),var(--soft));opacity:.7;animation:fall linear infinite}
+.spark{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 10px 3px rgba(233,164,190,.9);animation:tw 4s ease-in-out infinite}
+@keyframes fall{to{transform:translate3d(var(--dx),110vh,0) rotate(540deg)}}
+@keyframes tw{50%{opacity:.15;transform:scale(.5)}}
+
+/* ===== Yuqori va pastki panel ===== */
+#top{position:fixed;z-index:20;top:0;left:0;right:0;padding:calc(14px + env(safe-area-inset-top)) 22px 0;display:flex;align-items:center;gap:16px}
+#bar{flex:1;height:3px;background:rgba(184,77,120,.15);border-radius:3px;overflow:hidden}
+#fill{height:100%;width:0;background:linear-gradient(90deg,var(--rose),var(--deep));border-radius:3px;transition:width .7s var(--ease)}
+#count{font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--deep);letter-spacing:.06em;min-width:4.6em;text-align:right}
+#nav{position:fixed;z-index:20;left:0;right:0;bottom:0;padding:0 22px calc(18px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:12px}
+.btn{min-height:48px;padding:0 26px;border-radius:999px;font-weight:600;font-size:.95rem;transition:transform .3s var(--ease),box-shadow .3s,opacity .3s}
+.btn.main{background:linear-gradient(135deg,var(--rose),var(--deep));color:#fff;box-shadow:0 10px 26px -8px rgba(184,77,120,.6)}
+.btn.ghost{background:rgba(255,255,255,.7);border:1px solid rgba(184,77,120,.25);color:var(--deep);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.97)}
+.btn[hidden]{display:none}
+#restart{font-size:.82rem;min-height:44px;padding:0 16px;color:var(--ink);opacity:.7}
+
+/* ===== Sahifalar ===== */
+#stage{position:fixed;inset:0;z-index:5}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:76px 24px 96px;overflow-y:auto;opacity:0;visibility:hidden;transform:translateX(48px);filter:blur(12px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease),filter .7s var(--ease),visibility 0s .7s}
+.page.before{transform:translateX(-48px)}
+.page.active{opacity:1;visibility:visible;transform:none;filter:none;transition-delay:0s}
+.page>*{max-width:min(640px,100%);margin-left:auto;margin-right:auto}
+.page>*:first-child{margin-top:auto}.page>*:last-child{margin-bottom:auto}
+.page.active .rv{animation:up .9s var(--ease) both}
+.page.active .rv:nth-child(2){animation-delay:.12s}.page.active .rv:nth-child(3){animation-delay:.24s}.page.active .rv:nth-child(4){animation-delay:.36s}
+@keyframes up{from{opacity:0;transform:translateY(18px)}}
+
+h1,h2{font-family:var(--serif);font-weight:600;line-height:1.1;color:var(--deep)}
+h1{font-size:clamp(2.6rem,8vw,4.8rem)}
+h2{font-size:clamp(1.9rem,5vw,3rem);margin-bottom:1.1rem}
+p.t{font-family:var(--serif);font-size:clamp(1.3rem,3.4vw,1.8rem);line-height:1.5;font-weight:500}
+p.s{font-size:1rem;line-height:1.7;opacity:.85}
+.card{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9);border-radius:28px;padding:clamp(26px,5vw,48px);
+  box-shadow:0 24px 60px -24px rgba(184,77,120,.35);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.line{width:56px;height:2px;background:linear-gradient(90deg,transparent,var(--rose),transparent);margin:1.4rem auto}
+.mono{font-family:var(--serif);font-size:5rem;line-height:1;color:var(--rose);opacity:.55}
+.pill{margin-top:1.8rem}
+
+/* Intro konvert-yurak (01) */
+.heart{width:64px;height:64px;margin:0 auto 1.4rem;position:relative;animation:beat 3.2s ease-in-out infinite}
+.heart svg{width:100%;height:100%;fill:var(--deep);filter:drop-shadow(0 8px 14px rgba(184,77,120,.4))}
+@keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.12)}24%{transform:scale(1)}}
+
+/* Sir kartasi (07) */
+.flip{perspective:1000px;width:min(340px,86vw);height:360px;margin:0 auto}
+.flip-in{position:relative;width:100%;height:100%;transition:transform 1s var(--ease);transform-style:preserve-3d}
+.flip.open .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;border-radius:28px;text-align:center}
+.front{background:linear-gradient(150deg,var(--rose),var(--deep));color:#fff;box-shadow:0 26px 50px -20px rgba(184,77,120,.7)}
+.front .mono{color:#fff;opacity:.9}
+.back{transform:rotateY(180deg);background:var(--white);border:1px solid var(--soft);box-shadow:0 26px 50px -20px rgba(184,77,120,.45)}
+
+/* She'r (09) */
+.poem{font-family:var(--serif);font-size:clamp(1.15rem,3.2vw,1.5rem);line-height:1.75;font-style:italic}
+.poem span{display:block;opacity:0;transform:translateY(10px)}
+.page.active .poem span{animation:up 1s var(--ease) forwards;animation-delay:calc(var(--i)*.45s + .3s)}
+.poem .gap{height:1rem}
+
+/* Konvert (10) */
+.env{position:relative;width:min(320px,84vw);height:210px;margin:0 auto;cursor:pointer}
+.env .body{position:absolute;inset:0;background:linear-gradient(160deg,#fff,var(--soft));border-radius:14px;box-shadow:0 24px 44px -18px rgba(184,77,120,.5);z-index:3;
+  clip-path:polygon(0 0,50% 55%,100% 0,100% 100%,0 100%)}
+.env .flap{position:absolute;left:0;right:0;top:0;height:110px;background:var(--rose);transform-origin:top;z-index:4;border-radius:14px 14px 0 0;
+  clip-path:polygon(0 0,100% 0,50% 100%);transition:transform .8s var(--ease),z-index 0s .4s}
+.env .paper{position:absolute;left:14px;right:14px;top:14px;bottom:14px;background:#fff;border-radius:8px;z-index:2;transition:transform .9s var(--ease) .35s}
+.env .seal{position:absolute;top:92px;left:50%;width:34px;height:34px;margin-left:-17px;border-radius:50%;background:var(--deep);z-index:5;transition:opacity .3s}
+.env.open .flap{transform:rotateX(180deg);z-index:1}
+.env.open .seal{opacity:0}
+.env.open .paper{transform:translateY(-120px)}
+.letter{max-height:0;opacity:0;overflow:hidden;transition:max-height 1s var(--ease) .5s,opacity 1s .6s,margin .6s}
+.letter.show{max-height:520px;opacity:1;margin-top:1.4rem}
+
+/* Pleyer (11) */
+.viz{position:relative;width:200px;height:200px;margin:0 auto 1.4rem;display:grid;place-items:center}
+.viz i{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--rose);opacity:0}
+.playing .viz i{animation:ring 3.6s ease-out infinite}
+.playing .viz i:nth-child(2){animation-delay:1.2s}.playing .viz i:nth-child(3){animation-delay:2.4s}
+@keyframes ring{from{transform:scale(.55);opacity:.8}to{transform:scale(1.25);opacity:0}}
+.disc{width:120px;height:120px;border-radius:50%;position:relative;
+  background:radial-gradient(circle,var(--bg) 0 10%,var(--deep) 11% 14%,#7d2f50 15% 38%,var(--deep) 39% 60%,#7d2f50 61% 100%);box-shadow:0 14px 30px -10px rgba(184,77,120,.7);animation:spin 9s linear infinite;animation-play-state:paused}
+.playing .disc{animation-play-state:running}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pbtn{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--deep));display:inline-grid;place-items:center;box-shadow:0 12px 26px -8px rgba(184,77,120,.6)}
+.pbtn svg{width:22px;height:22px;fill:#fff}
+
+/* Musiqa paneli */
+#dock{position:fixed;z-index:25;right:14px;top:calc(48px + env(safe-area-inset-top));display:flex;align-items:center;gap:8px;padding:6px 8px 6px 6px;border-radius:999px;
+  background:rgba(255,255,255,.75);border:1px solid rgba(184,77,120,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 26px -14px rgba(184,77,120,.5)}
+#dock .disc{width:34px;height:34px;box-shadow:none}
+#dock button.t{font-size:.8rem;font-weight:600;color:var(--deep);padding:0 8px;min-height:44px}
+#vol{width:70px;accent-color:var(--deep);height:30px}
+#toast{position:fixed;z-index:40;left:50%;top:calc(110px + env(safe-area-inset-top));transform:translate(-50%,-10px);max-width:88vw;padding:12px 20px;border-radius:16px;background:var(--white);
+  border:1px solid var(--soft);color:var(--deep);font-size:.9rem;text-align:center;box-shadow:0 14px 34px -14px rgba(184,77,120,.5);opacity:0;pointer-events:none;transition:.5s var(--ease)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Oxirgi sahifa */
+.final{background:radial-gradient(circle at 50% 30%,#fff 0%,transparent 70%)}
+.btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:1.6rem}
+
+@media (max-width:560px){#vol{display:none}#nav .btn{padding:0 20px}.flip{height:330px}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;transition-delay:0s!important}
+  .page{filter:none}.poem span{opacity:1;transform:none}.petal{display:none}
+}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="fx" aria-hidden="true"></div>
+
+<!-- Progress bar va hisoblagich -->
+<div id="top"><div id="bar" role="progressbar" aria-valuemin="1" aria-valuemax="15"><div id="fill"></div></div><div id="count">01 / 15</div></div>
+
+<!-- Musiqa paneli -->
+<div id="dock">
+  <div class="disc" id="dockDisc" aria-hidden="true"></div>
+  <button class="t" id="dockBtn" type="button">Musiqani yoqish</button>
+  <input id="vol" type="range" min="0" max="1" step="0.05" value="0.7" aria-label="Ovoz balandligi">
+</div>
+<div id="toast" role="status"></div>
+
+<main id="stage">
+
+<!-- 01 -->
+<section class="page final-intro" data-title="A Little World">
+  <div class="heart rv"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6 5c2.1 0 3.4 1.2 4 2.3h4c.6-1.1 1.9-2.3 4-2.3 3.300 0 5.100 3.400 3.600 6.800C19.500 16.400 12 21 12 21z" transform="translate(0 -.5)"/></svg></div>
+  <h1 class="rv">Farzona uchun…</h1>
+  <p class="t rv" style="margin-top:1.2rem">Ba’zi gaplar yuzma-yuz aytilmay qoladi. Balki ularni shu yerda aytarman…</p>
+  <button class="btn main pill rv" data-next type="button">Sahifani ochish</button>
+</section>
+
+<!-- 02 -->
+<section class="page" data-title="Nega yaratildi">
+  <div class="card"><h2 class="rv">Bu sahifa nega yaratildi?</h2><div class="line"></div>
+  <p class="t rv">Bu shunchaki sayt emas. Bu — bir uchrashuvdan keyin xayolimda qolgan chiroyli taassurotlar.</p></div>
+</section>
+
+<!-- 03 -->
+<section class="page" data-title="Bir uchrashuv">
+  <div class="mono rv">“</div>
+  <h2 class="rv">Bir uchrashuv</h2>
+  <p class="t rv">Ba’zan oddiygina uchrashuv ham insonning xotirasida alohida joy egallaydi.</p>
+</section>
+
+<!-- 04 -->
+<section class="page" data-title="Birinchi taassurotim">
+  <div class="card"><h2 class="rv">Birinchi taassurotim</h2><div class="line"></div>
+  <p class="t rv">Sendagi odob va aqllilik menga yoqdi. Insonning go‘zalligi faqat tashqi ko‘rinishda emas, uning muomalasida ham bilinadi.</p></div>
+</section>
+
+<!-- 05 -->
+<section class="page" data-title="Samimiylik">
+  <h2 class="rv">Samimiylik</h2><div class="line"></div>
+  <p class="t rv">Sen bilan bo‘lgan suhbatimdan yaxshi taassurot oldim. Seni yanada yaxshiroq tanigim keldi.</p>
+</section>
+
+<!-- 06 -->
+<section class="page" data-title="Aytolmagan gapim">
+  <div class="card"><h2 class="rv">Aytolmagan gapim</h2><div class="line"></div>
+  <p class="t rv">O‘sha kuni senga aytmoqchi bo‘lgan gaplarim bor edi. Lekin ba’zi so‘zlarni aytish uchun to‘g‘ri lahzani topish qiyin ekan.</p></div>
+</section>
+
+<!-- 07 -->
+<section class="page" data-title="Bir kichik sir">
+  <h2 class="rv">Bir kichik sir</h2>
+  <div class="flip rv" id="flip">
+    <div class="flip-in">
+      <button class="face front" id="flipBtn" type="button" aria-expanded="false" aria-label="Kartani ochish">
+        <div class="mono">?</div><span>Kartani bosing</span>
+      </button>
+      <div class="face back"><p class="t">Rostini aytsam, sen menga yoqding, Farzona. Buni senga samimiy aytishni istadim.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="page" data-title="Chiroyli fazilatlar">
+  <div class="card"><h2 class="rv">Chiroyli fazilatlar</h2><div class="line"></div>
+  <p class="t rv">Men uchun insonning odobi, fikrlashi va boshqalarga bo‘lgan munosabati juda muhim. Sendagi shu jihatlar menda yaxshi taassurot qoldirdi.</p></div>
+</section>
+
+<!-- 09 -->
+<section class="page" data-title="Kichik she’r">
+  <h2 class="rv">Kichik she’r</h2>
+  <div class="poem">
+    <span style="--i:0">Kutilmagan kun, oddiy uchrashuv,</span>
+    <span style="--i:1">Unda qolgan jimgina bir taassurot.</span>
+    <span style="--i:2">Aytilmay qolgan so‘zlar ichimda yashar,</span>
+    <span style="--i:3">Sokin bir umid kabi, mayin va nozik.</span>
+    <span class="gap" style="--i:4"></span>
+    <span style="--i:5">Yangi tanishuv — hali yozilmagan sahifa,</span>
+    <span style="--i:6">Shoshmay, hurmat bilan varaqlansa.</span>
+    <span style="--i:7">Samimiyat bo‘lsin yo‘ldosh bizga,</span>
+    <span style="--i:8">Qolganini vaqtning o‘ziga qo‘yaylik.</span>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="page" data-title="Maktub">
+  <h2>Ochiladigan maktub</h2>
+  <div class="env" id="env" role="button" tabindex="0" aria-expanded="false" aria-label="Konvertni ochish">
+    <div class="paper"></div><div class="flap"></div><div class="body"></div><div class="seal"></div>
+  </div>
+  <div class="letter card" id="letter">
+    <p class="t" style="font-size:clamp(1.1rem,3vw,1.45rem)">Farzona, bu sahifalarni yaratishimning sababi oddiy: sen bilan uchrashganimdan xursand bo‘ldim. Senda ko‘rgan odob va samimiyat menga yoqdi. Buni senga chiroyli tarzda yetkazgim keldi.</p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="page" id="musicPage" data-title="Bizning kichik musiqamiz">
+  <h2 class="rv">Bizning kichik musiqamiz</h2>
+  <div class="viz rv"><i></i><i></i><i></i><div class="disc"></div></div>
+  <button class="pbtn rv" id="bigBtn" type="button" aria-label="Musiqani yoqish yoki to‘xtatish"><svg viewBox="0 0 24 24" id="bigIcon"><path d="M8 5v14l11-7z"/></svg></button>
+  <p class="t rv" style="margin-top:1.4rem">Ba’zan musiqa aytolmagan hislarimizni ham ifodalaydi.</p>
+</section>
+
+<!-- 12 -->
+<section class="page" data-title="Shoshilmasdan">
+  <div class="card"><h2 class="rv">Shoshilmasdan</h2><div class="line"></div>
+  <p class="t rv">Chiroyli tanishuvlar shoshilmasdan, samimiyat va o‘zaro hurmat bilan davom etadi.</p></div>
+</section>
+
+<!-- 13 -->
+<section class="page" data-title="Bir chiroyli imkoniyat">
+  <h2 class="rv">Bir chiroyli imkoniyat</h2><div class="line"></div>
+  <p class="t rv">Hayotda kimnidir yaxshiroq tanish imkoniyati paydo bo‘lishi ham quvonchli. Men shu imkoniyatga ochiqman.</p>
+</section>
+
+<!-- 14 -->
+<section class="page" data-title="Taklifim">
+  <div class="card" style="padding:clamp(32px,6vw,64px)"><h2 class="rv">Taklifim</h2><div class="line"></div>
+  <p class="t rv">Farzona, agar sen ham xohlasang, bir kuni yana uchrashib, bemalol suhbatlashsak juda xursand bo‘lardim.</p>
+  <button class="btn main pill rv" data-next type="button">Oxirgi sahifa</button></div>
+</section>
+
+<!-- 15 -->
+<section class="page final" data-title="Davomi">
+  <div class="heart rv"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6 5c2.1 0 3.4 1.2 4 2.3h4c.6-1.1 1.9-2.3 4-2.3 3.300 0 5.100 3.400 3.600 6.800C19.500 16.400 12 21 12 21z" transform="translate(0 -.5)"/></svg></div>
+  <h2 class="rv">Davomini birga yozamizmi?</h2>
+  <p class="t rv">Farzona, sen bilan tanishganimdan xursandman. Seni yaxshiroq tanishni istayman. Agar sen ham xohlasang, yana uchrashib, chiroyli suhbat quraylik.</p>
+  <p class="s rv" style="margin-top:1rem">Bu kichik saytni ko‘rganing uchun rahmat.</p>
+  <div class="btns rv">
+    <button class="btn ghost" id="again" type="button">Boshidan ko‘rish</button>
+    <button class="btn main" id="contact" type="button">Xabar yozish</button>
+  </div>
+</section>
+</main>
+
+<!-- Pastki navigatsiya -->
+<nav id="nav" aria-label="Sahifalar">
+  <button class="btn ghost" id="prev" type="button">Ortga</button>
+  <button id="restart" type="button">Boshidan boshlash</button>
+  <button class="btn main" id="next" type="button">Keyinga</button>
+</nav>
+
+<script>
+/* ============ SOZLAMALAR (shu yerni o‘zgartiring) ============ */
+const MUSIC_SRC = "./music.mp3";   // musiqa fayli yo‘li
+const CONTACT_LINK = "";           // masalan: "https://t.me/sizning_username" (bo‘sh qolsa, tugma tushuntirish ko‘rsatadi)
+/* =============================================================== */
+
+(function () {
+  "use strict";
+  const $ = (s, r = document) => r.querySelector(s);
+  const pages = Array.from(document.querySelectorAll(".page"));
+  const TOTAL = pages.length;            // 15
+  const LOCK_MS = 450;                   // tez bosishdan himoya
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let cur = -1, locked = false;
+  const pad = n => String(n).padStart(2, "0");
+
+  /* ---------- Sahifalar ---------- */
+  function go(i) {
+    i = Math.max(0, Math.min(TOTAL - 1, i));
+    if (i === cur || locked) return;
+    locked = true; setTimeout(() => (locked = false), LOCK_MS);
+    pages.forEach((p, k) => {
+      p.classList.toggle("active", k === i);
+      p.classList.toggle("before", k < i);
+      p.setAttribute("aria-hidden", k === i ? "false" : "true");
+      p.inert = k !== i;                 // yashirin sahifada fokus bo‘lmasin
+    });
+    cur = i;
+    pages[i].scrollTop = 0;
+    $("#count").textContent = pad(i + 1) + " / " + TOTAL;
+    $("#fill").style.width = ((i + 1) / TOTAL * 100) + "%";
+    $("#bar").setAttribute("aria-valuenow", i + 1);
+    $("#prev").hidden = i === 0;
+    $("#next").hidden = i === TOTAL - 1;
+    document.title = pad(i + 1) + " · " + pages[i].dataset.title;
+  }
+  $("#next").onclick = () => go(cur + 1);
+  $("#prev").onclick = () => go(cur - 1);
+  document.querySelectorAll("[data-next]").forEach(b => b.onclick = () => go(cur + 1));
+  function restart() {
+    resetInteractive(); go(0);
+  }
+  $("#restart").onclick = restart;
+  $("#again").onclick = restart;
+  addEventListener("keydown", e => {
+    if (e.target.matches("input")) return;
+    if (e.key === "ArrowRight") go(cur + 1);
+    if (e.key === "ArrowLeft") go(cur - 1);
+  });
+  // Telefonda surib o‘tish
+  let tx = null;
+  addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, { passive: true });
+  addEventListener("touchend", e => {
+    if (tx === null) return;
+    const d = e.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(d) > 70) go(cur + (d < 0 ? 1 : -1));
+  }, { passive: true });
+
+  /* ---------- Sir kartasi (07) ---------- */
+  const flip = $("#flip"), flipBtn = $("#flipBtn");
+  flipBtn.onclick = () => {
+    const o = flip.classList.toggle("open");
+    flipBtn.setAttribute("aria-expanded", o);
+  };
+
+  /* ---------- Konvert (10) ---------- */
+  const env = $("#env"), letter = $("#letter");
+  function toggleEnv() {
+    const o = env.classList.toggle("open");
+    letter.classList.toggle("show", o);
+    env.setAttribute("aria-expanded", o);
+  }
+  env.onclick = toggleEnv;
+  env.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleEnv(); } };
+
+  function resetInteractive() {
+    flip.classList.remove("open"); flipBtn.setAttribute("aria-expanded", "false");
+    env.classList.remove("open"); letter.classList.remove("show"); env.setAttribute("aria-expanded", "false");
+  }
+
+  /* ---------- Musiqa ---------- */
+  const audio = new Audio();
+  audio.loop = true; audio.preload = "none"; audio.volume = 0.7;
+  let srcSet = false, broken = false;
+  const dockBtn = $("#dockBtn"), bigBtn = $("#bigBtn"), bigIcon = $("#bigIcon");
+  const ICON_PLAY = "M8 5v14l11-7z", ICON_PAUSE = "M6 5h4v14H6zM14 5h4v14h-4z";
+  let toastT;
+  function toast(msg) {
+    const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 4500);
+  }
+  function ui(playing) {
+    document.body.classList.toggle("playing", playing);
+    $("#dockDisc").style.animationPlayState = playing ? "running" : "paused";
+    dockBtn.textContent = playing ? "Pauza" : "Musiqani yoqish";
+    bigIcon.firstElementChild.setAttribute("d", playing ? ICON_PAUSE : ICON_PLAY);
+  }
+  // Doira animatsiyasi 11-sahifada ham ishlashi uchun
+  $("#musicPage").classList.add("playing-host");
+  const obs = new MutationObserver(() => $("#musicPage").classList.toggle("playing", document.body.classList.contains("playing")));
+  obs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+  async function toggleMusic() {
+    if (broken) { toast("music.mp3 topilmadi. Faylni index.html bilan bir papkaga qo‘ying."); return; }
+    try {
+      if (!srcSet) { audio.src = MUSIC_SRC; srcSet = true; }
+      if (audio.paused) { await audio.play(); } else { audio.pause(); }
+    } catch (err) {
+      ui(false);
+      toast("Musiqani ishga tushirib bo‘lmadi. music.mp3 faylini tekshiring.");
+    }
+  }
+  audio.addEventListener("play", () => ui(true));
+  audio.addEventListener("pause", () => ui(false));
+  audio.addEventListener("error", () => { broken = true; ui(false); toast("music.mp3 topilmadi. Sayt musiqasiz ham ishlashda davom etadi."); });
+  dockBtn.onclick = toggleMusic;
+  bigBtn.onclick = toggleMusic;
+  $("#vol").oninput = e => { audio.volume = parseFloat(e.target.value); };
+
+  /* ---------- Saytga kirganda musiqani avtomatik boshlash ----------
+     Brauzer avtomatik ovozni ko‘pincha bloklaydi. Shuning uchun avval darhol
+     urinib ko‘ramiz, bloklansa — mehmonning birinchi bosishi/tegishi bilan boshlaymiz.
+     Bu faqat bir marta ishlaydi: pauza qilingan musiqa o‘zi qayta yoqilmaydi. */
+  let autoDone = false;
+  function autoStart(e) {
+    if (autoDone) return;
+    if (e && e.target && e.target.closest && e.target.closest("#dock, #bigBtn")) { autoDone = true; return; }
+    autoDone = true;
+    ["click", "keydown", "touchend"].forEach(t => removeEventListener(t, autoStart, true));
+    if (!broken && audio.paused) toggleMusic();
+  }
+  ["click", "keydown", "touchend"].forEach(t => addEventListener(t, autoStart, true));
+  // Ba’zi brauzerlar darhol ruxsat beradi
+  audio.src = MUSIC_SRC; srcSet = true;
+  audio.play().then(() => { autoDone = true; }).catch(() => { /* birinchi bosishni kutamiz */ });
+
+  /* ---------- Xabar yozish ---------- */
+  $("#contact").onclick = () => {
+    if (!CONTACT_LINK) { toast("Aloqa havolasi hali kiritilmagan. index.html ichida CONTACT_LINK ni to‘ldiring."); return; }
+    window.open(CONTACT_LINK, "_blank", "noopener");
+  };
+
+  /* ---------- Yaproqlar va yulduzchalar ---------- */
+  if (!reduce) {
+    const fx = $("#fx"), small = innerWidth < 600;
+    for (let i = 0; i < (small ? 9 : 16); i++) {
+      const p = document.createElement("span"); p.className = "petal";
+      p.style.cssText = `left:${Math.random() * 100}%;--dx:${(Math.random() - .5) * 220}px;animation-duration:${14 + Math.random() * 14}s;animation-delay:${-Math.random() * 24}s;transform:scale(${.6 + Math.random() * .8})`;
+      fx.appendChild(p);
+    }
+    for (let i = 0; i < (small ? 10 : 22); i++) {
+      const s = document.createElement("span"); s.className = "spark";
+      s.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${-Math.random() * 4}s;animation-duration:${3 + Math.random() * 4}s`;
+      fx.appendChild(s);
+    }
+  }
+
+  go(0);
+})();
+</script>
+</body>
+</html>
